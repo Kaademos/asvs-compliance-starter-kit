@@ -6,9 +6,9 @@ Please fill out this template when opening a pull request. Delete any sections t
 
 Provide a short, descriptive summary of the changes in this pull request.
 
-## Related issue(s)
+## 🔗 Related Issue
 
-If this PR fixes or relates to one or more issues, reference them here (e.g., `Fixes #123`).
+- Closes #
 
 ## Type of change
 
