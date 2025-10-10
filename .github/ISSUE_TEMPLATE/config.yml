@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - label: Report conduct (private)
+    url: mailto:kirumachi@proton.me
+issue_template_selector:
+  - name: Report a conduct incident
+  - name: Bug report
+  - name: Feature request
