@@ -248,6 +248,45 @@ python -m tools.drift_detector --offline
 # JSON output
 python -m tools.drift_detector --format json
 ```
+---
+
+## 🤖 Automated Compliance Engine (New!)
+
+Shift from manual checklists to automated verification.
+
+### 1. Evidence Verification
+Prove compliance by mapping ASVS requirements to code files.
+```yaml
+# evidence.yml
+requirements:
+  V14.4:
+    checks:
+      - type: content_match
+        path: "package.json"
+        pattern: "helmet"
+
+```
+
+Run: `python -m tools.compliance_gate --evidence-manifest evidence.yml`
+
+### 2. Infrastructure Scanning
+
+Scan Terraform plans for ASVS V5.3 (Storage) compliance.
+
+```bash
+terraform show -json tfplan > plan.json
+python -m tools.iac_scanner --plan-file plan.json
+
+```
+
+### 3. Compliance Dashboard
+
+Generate an auditor-ready HTML report combining documentation, code evidence, and DAST results.
+
+```bash
+python -m tools.generate_report --compliance-json gate.json --verification-json verify.json
+
+```
 
 ---
 

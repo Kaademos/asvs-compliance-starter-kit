@@ -73,7 +73,7 @@ def generate_html(compliance_data, verification_data):
     passed = 0
     total = 0
 
-    # Process Compliance Gate Results
+    # Process Compliance Gate Result
     if compliance_data:
         doc_results = compliance_data.get("documents", {}).get("results", [])
         if isinstance(compliance_data.get("results"), list): 
