@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 import shutil
 
+# Locate templates relative to this script location
 TEMPLATES_DIR = Path(__file__).parent.parent / "00-Documentation-Standards" / "Decision-Templates"
 
 def interactive_init():
@@ -10,6 +11,9 @@ def interactive_init():
     print("===========================================")
     
     project_name = input("Project Name: ").strip()
+    if not project_name:
+        print("Project name required.")
+        return
     
     print("\nSelect ASVS Assurance Level:")
     print("1) Level 1 (Basic - Automated)")
@@ -25,7 +29,6 @@ def interactive_init():
     output_path.mkdir(parents=True, exist_ok=True)
     
     # Copy templates
-    # In a real impl, we might filter based on level, but for now copying all is safer for start
     if TEMPLATES_DIR.exists():
         for item in TEMPLATES_DIR.glob("*.md"):
             dest = output_path / item.name
@@ -37,32 +40,42 @@ def interactive_init():
                 print(f"  + Created {item.name}")
             else:
                 print(f"  ! Skipped {item.name} (Exists)")
+    else:
+        print(f"  Warning: Templates directory not found at {TEMPLATES_DIR}")
     
     # Generate evidence.yml stub
     evidence_path = Path("evidence.yml")
     if not evidence_path.exists():
         evidence_content = f"""# Evidence Manifest for {project_name}
+# Map your code files to ASVS requirements here.
+
 requirements:
+  # Example: Verify HTTP Security Headers are installed
   V14.4:
     checks:
       - type: file_exists
         path: "package.json"
+      # - type: content_match
+      #   path: "package.json"
+      #   pattern: "helmet"
 """
-        evidence_path.write_text(evidence_content)
+        evidence_path.write_text(evidence_content, encoding="utf-8")
         print("  + Created evidence.yml")
 
     print("\n✅ Initialization complete!")
     print(f"Next step: Review documents in {output_dir}")
+    print(f"Then run: python -m tools.compliance_gate --docs-path {output_dir} --level {level_choice}")
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--interactive", action="store_true")
+    parser = argparse.ArgumentParser(description="Initialize a new ASVS project")
+    parser.add_argument("--interactive", action="store_true", help="Run in interactive mode")
     args = parser.parse_args()
     
     if args.interactive:
         interactive_init()
     else:
-        print("Use --interactive to start the wizard.")
+        # Default behavior if run without args, or provide CLI flags in future
+        print("Run with --interactive to start the wizard.")
 
 if __name__ == "__main__":
     main()
