@@ -1,60 +1,57 @@
-# Project Roadmap
+# Product Roadmap
 
-This document outlines the high-level goals and future direction for the
-ASVS Compliance Starter Kit. Our vision is to make this the most practical,
-developer-friendly resource for operationalizing the ASVS.
+**Vision:** To build the industry-standard open-source Compliance Engine that transforms OWASP ASVS from a static checklist into verifiable, automated code.
 
-## Short-Term Goals (v1.1) - COMPLETED
+---
 
-Foundation and automation tooling.
+## ✅ Completed Milestones
 
-- [x] **Expand Implementation Guidance:** Add more secure coding patterns
-  to the `/02-Implementation-Guidance/` directory for common vulnerabilities
-  (e.g., Secure Password Storage, Input Validation, Secure File Uploads).
-- [x] **Add More Decision Templates:** Create new templates in
-  `/00-Documentation-Standards/Decision-Templates/` for other key ASVS
-  chapters (e.g., V5 File Handling, V11 Cryptography).
-- [x] **Provide Verification Examples:** Populate the
-  `/02-Implementation-Guidance/Verification-Tests/` directory with examples
-  of how to write unit or integration tests for specific ASVS requirements.
-- [x] **Improve Automation Scripts:** Develop simple scripts to help users
-  generate checklists from the core JSON/CSV files.
-  - `tools/export_requirements.py` - Export requirements to CSV/Jira JSON
+### v2.0: The Compliance Engine (Current)
+*Transformation from "Text Files" to "Active Verification"*
+- [x] **Automated Evidence Verification:** `compliance_gate` now verifies file existence and content patterns (e.g., checking for `helmet` or `bcrypt`).
+- [x] **Infrastructure Scanning:** Native `iac_scanner` for Terraform plans to catch unencrypted storage (ASVS V5.3).
+- [x] **Auditor Dashboard:** HTML report generation combining documentation, code evidence, and DAST results.
+- [x] **Developer Experience:** Interactive `init` wizard and Docker container support.
 
-## Policy Enforcement (v1.2) - COMPLETED
+### v1.0 - v1.2: Foundation & Policy
+- [x] **Core Reference:** Machine-readable ASVS 5.0 (JSON/CSV).
+- [x] **Decision Templates:** Markdown templates for SOC2/ISO mapping.
+- [x] **Verification Suite:** Lightweight DAST for headers and cookies.
 
-Policy-as-Code enforcement for security decision documents.
+---
 
-- [x] **Compliance Gate Tool:** Validate that required security decision
-  documents exist and contain actual content (not placeholder text).
-  - `tools/compliance_gate.py` - CLI tool for policy validation
-  - `policies/validate_docs.rego` - OPA Rego policy definitions
-- [x] **GitHub Action:** Reusable action for CI/CD integration.
-  - `.github/actions/asvs-compliance-gate/action.yml`
-- [x] **CI Integration:** Automated compliance checks in CI pipeline.
-- [x] **Placeholder Detection:** Detect unmodified template placeholders
-  like `[Project Name]`, `YYYY-MM-DD`, `[e.g., ...]`.
+## 🚧 Current Focus: v2.x (Enterprise Ready)
 
-## Medium-Term Goals (v1.3)
+**Goal:** Remove friction for enterprise adoption and enable "set and forget" compliance.
 
-- [ ] **Language-Specific Guidance:** Create dedicated sections for popular
-  languages (e.g., Python, Java, Go, C#) with framework-specific advice.
-- [ ] **Integration with Tooling:** Provide examples or scripts for
-  integrating the machine-readable ASVS files with common security tools
-  (e.g., DAST scanners, SAST linters).
-- [ ] **Threat Modeling Content:** Add templates and guidance for conducting
-  lightweight threat modeling exercises that map to ASVS controls.
+### v2.1: Integrations & Trust
+- [ ] **Two-Way Issue Sync:** Automatically close Jira/GitHub issues when Evidence Verification passes.
+- [ ] **CI/CD Visibility:** Native GitHub Actions Step Summaries and GitLab Report artifacts.
+- [ ] **Supply Chain Security:** SLSA Level 3 compliance for CLI binaries (Signed releases).
 
-## Long-Term Vision (v2.0 and beyond)
+### v2.2: The "Evidence Pack" Ecosystem
+- [ ] **Framework Detectors:** Auto-configure evidence rules for:
+  - **Node.js:** Express, Fastify, NestJS
+  - **Python:** Django, FastAPI, Flask
+  - **Java:** Spring Boot
+- [ ] **Cloud Scanners:** Expand IaC scanning to include AWS CDK and Azure Bicep.
 
-- [ ] **Interactive Tooling:** Explore the possibility of a web-based tool
-  that allows users to select their project's ASVS level and generate a
-  tailored set of documentation and checklists.
-- [ ] **Community Case Studies:** Feature case studies or examples from
-  users who have successfully implemented the starter kit in their
-  organizations.
+---
 
-Want to help us get there? Check out our [open issues][issues], especially
-those tagged `help wanted`!
+## 🔭 Future Vision: v3.0 (Compliance Platform)
 
-[issues]: https://github.com/kaademos/asvs-compliance-starter-kit/issues
+**Goal:** A unified interface for Security, Engineering, and Auditors.
+
+- [ ] **PDF/Docx Export:** One-click generation of audit artifacts for external auditors.
+- [ ] **Policy Registry:** Centralized repository of community-maintained `evidence.yml` rules.
+- [ ] **IDE Plugin:** Real-time ASVS feedback in VS Code / IntelliJ (e.g., "This route lacks auth checks").
+
+---
+
+## 💡 How to Contribute
+
+We prioritize features that move security **left**. Check our [Issues](https://github.com/kaademos/asvs-compliance-starter-kit/issues) board:
+- `good first issue`: Documentation and simple pattern matchers.
+- `help wanted`: New framework adapters for the Evidence Verifier.
+
+*Roadmap last updated: Q1 2026*

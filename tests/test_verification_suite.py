@@ -13,8 +13,22 @@ from tools.verification_suite import (
     VerificationReport,
     SecurityTest,
     TestResult,
+    UrlValidator,
     format_text_report,
 )
+
+class TestUrlValidator:
+    def test_public_ip_allowed(self):
+        assert UrlValidator.is_safe_url("https://8.8.8.8") is True
+
+    def test_localhost_blocked(self):
+        # Mocking socket resolution would be ideal, but for now we test logic
+        # Assuming the environment resolves localhost to 127.0.0.1
+        assert UrlValidator.is_safe_url("http://localhost") is False
+        assert UrlValidator.is_safe_url("http://127.0.0.1") is False
+
+    def test_allow_local_override(self):
+        assert UrlValidator.is_safe_url("http://localhost", allow_local=True) is True
 
 
 class TestSecurityHeaderChecker:
@@ -378,7 +392,8 @@ class TestVerificationSuite:
 
     def test_run_verification_insecure_target(self):
         """Test verification against insecure mock target."""
-        suite = VerificationSuite("https://insecure.example.com")
+        # FIX: Added allow_local=True to bypass SSRF check for fake URL
+        suite = VerificationSuite("https://insecure.example.com", allow_local=True)
 
         mock_response = {
             "headers": {},  # No security headers
@@ -435,7 +450,7 @@ class TestIntegration:
 
     def test_full_secure_site_verification(self):
         """Test full verification of a secure site mock."""
-        suite = VerificationSuite("https://secure.example.com")
+        suite = VerificationSuite("https://secure.example.com", allow_local=True)
 
         # Note: CSRF cookies intentionally don't have HttpOnly because
         # JavaScript needs to read them to send in headers.
@@ -480,7 +495,7 @@ class TestIntegration:
 
     def test_full_insecure_site_verification(self):
         """Test full verification of an insecure site mock."""
-        suite = VerificationSuite("https://insecure.example.com")
+        suite = VerificationSuite("https://insecure.example.com", allow_local=True)
 
         mock_response = {
             "headers": {
