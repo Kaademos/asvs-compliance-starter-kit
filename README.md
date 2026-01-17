@@ -138,7 +138,7 @@ python -m tools.export_requirements --level 2 --format jira-json > jira-import.j
 # Verify source integrity
 python -m tools.export_requirements --level 2 --show-hash
 ```
-## Automated Compliance Verification (New!)
+### Automated Compliance Verification (New!)
 
 Don't just document your security—prove it. The Starter Kit now includes an **Evidence Verifier** that scans your codebase for proof of compliance.
 
@@ -205,6 +205,34 @@ python -m tools.verification_suite \
 - Cookie attributes (HttpOnly, Secure, SameSite)
 - CSRF protection detection
 - Password field security
+
+### Compliance Dashboard
+
+Generate an auditor-ready HTML report by combining results from all tools:
+
+```bash
+# 1. Run tools and save JSON output
+python -m tools.compliance_gate --level 2 --evidence-manifest evidence.yml --format json > gate.json
+python -m tools.verification_suite --target-url [https://yourapp.com](https://yourapp.com) --format json > verify.json
+
+# 2. Generate Report
+python -m tools.generate_report \
+  --compliance-json gate.json \
+  --verification-json verify.json \
+  --output report.html
+```
+
+### Infrastructure Scanning (New!)
+Scan your Terraform plans for ASVS 5.3 violations (S3 security):
+
+```bash
+# 1. Generate plan JSON
+terraform plan -out=tfplan
+terraform show -json tfplan > plan.json
+
+# 2. Run Scanner
+python -m tools.iac_scanner --plan-file plan.json
+```
 
 ### Drift Detector
 
