@@ -23,7 +23,8 @@ from dataclasses import dataclass, field, asdict
 from enum import Enum
 from typing import Optional
 from urllib.parse import urljoin, urlparse
-
+import socket
+import ipaddress
 
 class TestResult(Enum):
     """Result status for individual security tests."""
@@ -32,6 +33,49 @@ class TestResult(Enum):
     SKIP = "skip"
     ERROR = "error"
 
+class UrlValidator:
+    """Security controls for target URL validation."""
+    
+    # Block loopback, link-local, and private ranges by default
+    BLOCKED_RANGES = [
+        "127.0.0.0/8",
+        "169.254.0.0/16",
+        "10.0.0.0/8",
+        "172.16.0.0/12",
+        "192.168.0.0/16",
+        "::1/128",
+        "fc00::/7"
+    ]
+
+    @staticmethod
+    def is_safe_url(url: str, allow_local: bool = False) -> bool:
+        """
+        Validate URL against SSRF protections.
+        Returns True if safe, False otherwise.
+        """
+        if allow_local:
+            return True
+
+        try:
+            parsed = urlparse(url)
+            hostname = parsed.hostname
+            if not hostname:
+                return False
+
+            # Resolve hostname to IP
+            ip_str = socket.gethostbyname(hostname)
+            ip = ipaddress.ip_address(ip_str)
+
+            # Check against blocked ranges
+            for cidr in UrlValidator.BLOCKED_RANGES:
+                if ip in ipaddress.ip_network(cidr):
+                    print(f"Security Warning: Target resolves to restricted IP {ip}")
+                    return False
+            
+            return True
+        except Exception as e:
+            print(f"URL Validation Error: {e}")
+            return False
 
 @dataclass
 class SecurityTest:
@@ -431,9 +475,11 @@ class VerificationSuite:
     Main verification suite that orchestrates all security checks.
     """
 
-    def __init__(self, target_url: str, timeout: int = 10):
+    def __init__(self, target_url: str, timeout: int = 10, allow_local: bool = False):
         self.target_url = target_url
         self.timeout = timeout
+        if not UrlValidator.is_safe_url(target_url, allow_local):
+            raise ValueError(f"Target URL '{target_url}' is not allowed (SSRF Protection). Use --allow-local to override.")
         self.header_checker = SecurityHeaderChecker()
         self.cookie_checker = CookieSecurityChecker()
         self.csrf_checker = CSRFChecker()
@@ -598,12 +644,26 @@ Supported checks:
         help="Always exit with code 0 regardless of test results",
     )
 
+    parser.add_argument(
+        "--allow-local",
+        action="store_true",
+        help="Allow scanning of local/private network addresses (SSRF protection disabled)",
+    )
+
     args = parser.parse_args()
 
     # Validate URL
     parsed = urlparse(args.target_url)
     if not parsed.scheme or not parsed.netloc:
         print(f"Error: Invalid URL: {args.target_url}")
+        sys.exit(1)
+    try:
+        # Pass the allow_local flag
+        suite = VerificationSuite(args.target_url, timeout=args.timeout, allow_local=args.allow_local)
+        report = suite.run_verification()
+        # ... output handling ...
+    except ValueError as e:
+        print(f"Error: {e}")
         sys.exit(1)
 
     # Run verification
