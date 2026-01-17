@@ -26,7 +26,7 @@ class TerraformScanner:
 
     def check_s3_public_access(self):
         """ASVS V5.3.4: Verify S3 Public Access Block exists."""
-        # 1. Find all buckets
+        # 1. Find all AWS buckets
         buckets = self._find_resources("aws_s3_bucket")
         # 2. Find all access blocks
         blocks = self._find_resources("aws_s3_bucket_public_access_block")
