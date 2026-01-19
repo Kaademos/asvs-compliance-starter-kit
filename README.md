@@ -1,145 +1,123 @@
 <div align="center">
 
-# OWASP ASVS Compliance Engine
+# ASVS Compliance Engine
 
 ### Turn Security Requirements into Verifiable Code.
 
-[![PyPI - Version](https://img.shields.io/pypi/v/asvs-compliance-starter-kit?style=flat-square&color=0066FF&labelColor=1c1c1c)](https://pypi.org/project/asvs-compliance-starter-kit/)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/asvs-compliance-starter-kit?style=flat-square&color=0066FF&labelColor=1c1c1c)](https://pypi.org/project/asvs-compliance-starter-kit/)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/Kaademos/asvs-compliance-starter-kit/tree/main.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/Kaademos/asvs-compliance-starter-kit/tree/main)
+[![PyPI - Version](https://img.shields.io/pypi/v/asvs-compliance-tools?style=flat-square&color=0066FF&labelColor=1c1c1c)](https://pypi.org/project/asvs-compliance-tools/)
+[![Python Version](https://img.shields.io/pypi/pyversions/asvs-compliance-tools?style=flat-square&color=0066FF&labelColor=1c1c1c)](https://pypi.org/project/asvs-compliance-tools/)
 [![License](https://img.shields.io/badge/license-Apache_2.0-0066FF?style=flat-square&labelColor=1c1c1c)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-0066FF?style=flat-square&labelColor=1c1c1c&logo=docker)](Dockerfile)
 
 <br/>
 
-<img src="https://placehold.co/1200x600/1c1c1c/0066FF?text=Does+your+code+actually+meet+security+standards?%0AProove+it+with+one+command.&font=montserrat" alt="ASVS Compliance Engine Hero" width="100%" />
+<img src="https://placehold.co/1200x600/1c1c1c/0066FF?text=Video+Placeholder:+10s+Terminal+Workflow+Demo&font=montserrat" alt="ASVS Compliance Engine Demo" width="100%" />
 
 <br/>
 <br/>
 
-Move beyond static checklists. The ASVS Compliance Engine is a DevSecOps toolkit that automates the **OWASP Application Security Verification Standard (ASVS) 5.0**. It empowers engineering teams to treat compliance as code, verifying security controls directly in the CI/CD pipeline.
+**Stop managing security in spreadsheets.**
+The ASVS Compliance Engine is a DevSecOps toolkit that operationalizes the **OWASP Application Security Verification Standard (ASVS) 5.0**. It treats compliance as code, scanning your infrastructure, verifying your app headers, and enforcing evidence requirements in your CI/CD pipeline.
 
-[**Explore the Docs**](docs/) · [**Report a Bug**](https://github.com/kaademos/asvs-compliance-starter-kit/issues) · [**Request Feature**](https://github.com/kaademos/asvs-compliance-starter-kit/issues)
+[**Get Started**](#-quick-start) · [**Documentation**](docs/) · [**Report Bug**](https://github.com/kaademos/asvs-compliance-starter-kit/issues)
 
 </div>
 
 ---
 
-## ⚡ Why Use This?
+## ⚡ The Problem: Compliance Rot
 
-Most compliance efforts fail because they rely on Word documents that become obsolete the moment they're written. This engine solves the "proof gap" by linking requirements directly to your codebase.
+Most security compliance efforts fail because they rely on static documents (Word/Excel) that become obsolete the moment they are written. This engine bridges the gap between **Requirements** and **Reality**.
 
-<div align="center">
-
-| ❌ Old Way (Static) | ✅ New Way (Dynamic) |
+| ❌ The Old Way (Static) | ✅ The Compliance Engine (Dynamic) |
 | :--- | :--- |
-| Manual spreadsheet updates | **Automated** evidence collection |
-| "Trust me" attestations | **Verifiable** code & config checks |
-| Scrambling before an audit | **Continuous** audit-readiness |
-
-</div>
+| **Manual Attestation:** "I promise we use bcrypt." | **Automated Evidence:** Scans `package.json` for `bcrypt` library. |
+| **Stale Docs:** Architecture diagrams from 2021. | **Living Docs:** Requirements mapped directly to code files. |
+| **Blind Spots:** Cloud configs checked manually. | **IaC Scanning:** Terraform plans scanned for ASVS V5.3 violations. |
+| **Audit Panic:** Scrambling for screenshots. | **Instant Dashboards:** Single-click HTML audit reports. |
 
 ---
 
 ## 🚀 Key Features
 
 ### 1. Automated Evidence Verification
-Don't just claim you use secure libraries—prove it. Map ASVS requirements directly to files in your repository. The engine scans for their existence and content.
+Don't just claim you use secure libraries—prove it. Map ASVS requirements directly to files in your repository using `evidence.yml`. The engine verifies their existence and content during every build.
 
-<img src="https://placehold.co/1000x400/1c1c1c/0066FF?text=IMAGE+PLACEHOLDER:+Split+screen+showing+evidence.yml+and+terminal+pass+result" alt="Evidence Verification Example" width="100%" />
-
-```yaml
-# evidence.yml
-requirements:
-  V14.4.1: # HTTP Security Headers
-    checks:
-      - type: content_match
-        path: "package.json"
-        pattern: "\"helmet\"" # Verify Helmet.js is installed
-
-```
+<img src="https://placehold.co/1000x400/1c1c1c/0066FF?text=Image+Placeholder:+Evidence.yml+Configuration+vs+Terminal+Success&font=montserrat" alt="Evidence Verification" width="100%" />
 
 ### 2. Infrastructure-as-Code (IaC) Scanning
+Shift security left by catching cloud storage misconfigurations before they deploy. Our native scanner checks Terraform plans against **ASVS V5.3** (Storage & Cryptography).
 
-Shift security left by catching cloud misconfigurations before they are deployed. Our native scanner checks Terraform plans against ASVS V5.3 requirements for storage security.
-
-<img src="https://placehold.co/1000x300/1c1c1c/0066FF%3Ftext%3DIMAGE%2BPLACEHOLDER:%2BTerminal%2Boutput%2Bshowing%2BTerraform%2Bscan%2Bfailure%2Bfor%2Bunencrypted%2BS3%2Bbucket" alt="IaC Scanner Example" width="100%" />
+<img src="https://placehold.co/1000x300/1c1c1c/0066FF?text=Image+Placeholder:+Terminal+showing+S3+Encryption+Failure&font=montserrat" alt="IaC Scanner" width="100%" />
 
 ### 3. Auditor-Ready Dashboards
+Stop manually compiling evidence. Generate a comprehensive HTML report that combines documentation status, code evidence, and DAST results into a single pane of glass for your SOC2/ISO 27001 auditor.
 
-Generate comprehensive HTML reports that combine documentation status, code evidence, and DAST results into a single pane of glass for stakeholders and auditors (SOC2, ISO 27001).
-
-<img src="https://placehold.co/1000x500/1c1c1c/0066FF%3Ftext%3DIMAGE%2BPLACEHOLDER:%2BScreenshot%2Bof%2Bthe%2BHTML%2Bcompliance%2Bdashboard" alt="Compliance Dashboard Example" width="100%" />
+<img src="https://placehold.co/1000x500/1c1c1c/0066FF?text=Image+Placeholder:+Auditor+Dashboard+Screenshot&font=montserrat" alt="Compliance Dashboard" width="100%" />
 
 ---
 
 ## 🛠️ Quick Start
 
-Get up and running in minutes.
+### Option A: Python (Recommended)
 
-### Option A: Using Python (Recommended)
-
-1. **Install the toolkit:**
 ```bash
-pip install "asvs-compliance-starter-kit[evidence,verification]"
+# 1. Install the toolkit
+pip install "asvs-compliance-tools[evidence,verification]"
 
-```
-
-2. **Initialize your project:**
-Run the wizard to generate your security architecture documentation based on your risk profile.
-```bash
+# 2. Initialize your project (Interactive Wizard)
+# Generates your security docs and evidence.yml
 python -m tools.init_project --interactive
 
-```
-
-3. **Verify compliance:**
-Run the gate against your docs and the generated sample evidence.
-```bash
+# 3. Verify Compliance
+# Scans your docs and code for evidence
 python -m tools.compliance_gate --level 2 --evidence-manifest evidence.yml
-
 ```
 
-### Option B: Using Docker
+### Option B: Docker
 
-No Python? No problem. Run the full suite in a container.
+No Python environment? No problem.
 
 ```bash
 # Build the image
 docker build -t asvs-engine .
 
-# Run the init wizard
-docker run -it -v $(pwd):/app asvs-engine tools.init_project --interactive
-
-# Run the compliance gate
-docker run -v $(pwd):/app asvs-engine tools.compliance_gate --level 2 --evidence-manifest evidence.yml
+# Run the Compliance Gate
+docker run -v $(pwd):/app asvs-engine tools.compliance_gate --level 2
 ```
 
 ---
 
-## 🗓️ Roadmap & Community
+## 📦 What's Inside?
 
-We are actively building the future of open-source compliance. Check out our **[ROADMAP.md](https://www.google.com/search?q=ROADMAP.md)** to see what's coming next, including:
+| Tool | Command | Description |
+| --- | --- | --- |
+| **Compliance Gate** | `compliance_gate` | Enforces documentation and code evidence rules. |
+| **Verification Suite** | `verification_suite` | DAST scanner for Security Headers, CSRF, and Cookies. |
+| **IaC Scanner** | `iac_scanner` | Scans Terraform plans for unencrypted storage. |
+| **Drift Detector** | `drift_detector` | Checks if your ASVS definitions are out of sync with OWASP. |
+| **Report Gen** | `generate_report` | Compiles JSON outputs into an HTML dashboard. |
 
-* Two-way sync with Jira/GitHub Issues.
-* Pre-built evidence packs for Node.js, Python, and Java frameworks.
-* Expanded cloud infrastructure scanning.
+---
 
-**Want to contribute?** We'd love your help! See our [CONTRIBUTING.md](https://www.google.com/search?q=CONTRIBUTING.md) guide to get started.
+## 🤝 Contributing
+
+We are building the standard for open-source compliance.
+
+* **[Roadmap](ROADMAP.md):** See our plans for Jira Sync and VS Code extensions.
+* **[Contributing Guide](CONTRIBUTING.md):** How to set up your dev environment.
+
+## 💖 Support the Project
+
+If this tool saves your team hours of audit preparation, please consider [sponsoring the development](.github/FUNDING.yml). Your support funds the creation of pre-built Evidence Packs for frameworks like **Django**, **Spring Boot**, and **Node.js**.
 
 ---
 
 <div align="center">
-<p>
-Currently maintaining this project in my free time.
-
-If this tool saves your company time and money, please consider supporting its development.
-</p>
-<a href="https://github.com/sponsors/kaademos">
-<img src="=https://img.shields.io/badge/Sponsor-💖-ff69b4?style=for-the-badge" alt="Sponsor">
-</a>
+<sub>Built with ❤️ for the Security Community</sub>
 </div>
 
 <p align="center">
   <a href="https://owasp.org/www-project-application-security-verification-standard/">OWASP ASVS</a> •
-  <a href="https://github.com/kaademos/asvs-compliance-starter-kit/issues">Report Bug</a> •
-  <a href="https://github.com/kaademos/asvs-compliance-starter-kit/issues">Request Feature</a>
 </p>
