@@ -11,6 +11,7 @@ from tools.compliance_gate import (
     GateResult,
     DEFAULT_PLACEHOLDER_PATTERNS,
     REQUIRED_DOCUMENTS_BY_LEVEL,
+    resolve_docs_path,
 )
 
 
@@ -444,3 +445,52 @@ We need more content here to pass the length check.
         gate = ComplianceGate(docs_path=docs_path, level=2)
         result = gate.run()
         assert result.passed is False
+
+
+class TestResolveDocsPath:
+    """Tests for resolve_docs_path function."""
+
+    def test_returns_user_path_when_provided(self, tmp_path):
+        """When user provides a path, return it directly."""
+        user_path = tmp_path / "custom-docs"
+        user_path.mkdir()
+        result = resolve_docs_path(user_path)
+        assert result == user_path
+
+    def test_returns_user_path_even_if_not_exists(self, tmp_path):
+        """When user provides a path, return it even if it doesn't exist."""
+        user_path = tmp_path / "nonexistent"
+        result = resolve_docs_path(user_path)
+        assert result == user_path
+
+    def test_auto_detects_docs_directory(self, tmp_path, monkeypatch):
+        """Auto-detect ./docs directory when no path provided."""
+        monkeypatch.chdir(tmp_path)
+        docs_dir = tmp_path / "docs"
+        docs_dir.mkdir()
+        result = resolve_docs_path(None)
+        assert result == Path("docs")
+
+    def test_auto_detects_product_specific_files(self, tmp_path, monkeypatch):
+        """Auto-detect ./03-Product-Specific-Files when docs doesn't exist."""
+        monkeypatch.chdir(tmp_path)
+        product_dir = tmp_path / "03-Product-Specific-Files"
+        product_dir.mkdir()
+        result = resolve_docs_path(None)
+        assert result == Path("03-Product-Specific-Files")
+
+    def test_prefers_docs_over_product_specific(self, tmp_path, monkeypatch):
+        """Prefer ./docs over ./03-Product-Specific-Files."""
+        monkeypatch.chdir(tmp_path)
+        docs_dir = tmp_path / "docs"
+        docs_dir.mkdir()
+        product_dir = tmp_path / "03-Product-Specific-Files"
+        product_dir.mkdir()
+        result = resolve_docs_path(None)
+        assert result == Path("docs")
+
+    def test_falls_back_to_current_directory(self, tmp_path, monkeypatch):
+        """Fall back to current directory when no candidates found."""
+        monkeypatch.chdir(tmp_path)
+        result = resolve_docs_path(None)
+        assert result == Path(".")

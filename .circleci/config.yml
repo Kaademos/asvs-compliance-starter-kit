@@ -22,7 +22,12 @@ jobs:
       - run:
           name: Verify CLI Tools
           command: |
-            # basic smoke test of the installed CLI
+            # Smoke test the unified CLI
+            asvs --help
+            asvs verify --help
+            asvs export --help
+            asvs drift --help
+            # Legacy CLI compatibility
             python -m tools.compliance_gate --help
 
   # Job 2: Release to PyPI (Replaces 'release.yml')

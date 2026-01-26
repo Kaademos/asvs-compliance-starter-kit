@@ -288,7 +288,38 @@ def load_policy_config(config_path: Path) -> dict:
         return json.load(f)
 
 
-def main() -> int:
+def resolve_docs_path(user_path: Optional[Path]) -> Path:
+    """
+    Resolve the documentation path with smart defaults.
+
+    If user provides a path, use it directly. Otherwise, try common locations:
+    1. ./docs
+    2. ./03-Product-Specific-Files
+    3. Current directory (.)
+
+    Args:
+        user_path: User-provided path or None
+
+    Returns:
+        Resolved Path object
+    """
+    if user_path is not None:
+        return user_path
+
+    candidates = [
+        Path("docs"),
+        Path("03-Product-Specific-Files"),
+        Path("."),
+    ]
+
+    for candidate in candidates:
+        if candidate.exists() and candidate.is_dir():
+            return candidate
+
+    return Path("docs")
+
+
+def main(args: Optional[list[str]] = None) -> int:
     """Main entry point for CLI usage."""
     parser = argparse.ArgumentParser(
         description="ASVS Compliance Gate - Validate security decision documents",
@@ -297,8 +328,8 @@ def main() -> int:
     parser.add_argument(
         "--docs-path",
         type=Path,
-        required=True,
-        help="Path to the decision templates directory",
+        default=None,
+        help="Path to the decision templates directory (default: auto-detect ./docs or ./03-Product-Specific-Files)",
     )
     parser.add_argument(
         "--level",
@@ -329,22 +360,25 @@ def main() -> int:
         help="Path to evidence.yml configuration file",
     )
 
-    args = parser.parse_args()
+    parsed = parser.parse_args(args)
 
     # Load configuration if provided
     placeholder_patterns = None
     required_documents = None
-    if args.config and args.config.exists():
-        config = load_policy_config(args.config)
+    if parsed.config and parsed.config.exists():
+        config = load_policy_config(parsed.config)
         placeholder_patterns = config.get("placeholder_patterns")
         required_documents = {
             int(k): v for k, v in config.get("required_documents", {}).items()
         }
 
+    # Resolve docs path with smart defaults
+    docs_path = resolve_docs_path(parsed.docs_path)
+
     # Create and run the gate
     gate = ComplianceGate(
-        docs_path=args.docs_path,
-        level=args.level,
+        docs_path=docs_path,
+        level=parsed.level,
         placeholder_patterns=placeholder_patterns,
         required_documents=required_documents,
     )
@@ -352,9 +386,9 @@ def main() -> int:
     gate_result = gate.run()
 
     # Run Evidence Verification
-    if args.evidence_manifest and args.evidence_manifest.exists():
+    if parsed.evidence_manifest and parsed.evidence_manifest.exists():
         try:
-            with open(args.evidence_manifest, 'r') as f:
+            with open(parsed.evidence_manifest, 'r') as f:
                 manifest = yaml.safe_load(f)
             
             verifier = EvidenceVerifier(Path.cwd())
@@ -377,7 +411,7 @@ def main() -> int:
             gate_result.passed = False
 
     # Output results
-    if args.format == "json":
+    if parsed.format == "json":
         print(json.dumps(gate_result.to_dict(), indent=2))
     else:
         print(f"ASVS Compliance Gate - Level {gate_result.level}")

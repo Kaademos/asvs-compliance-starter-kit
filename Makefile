@@ -1,7 +1,7 @@
 # ASVS Compliance Starter Kit - Build System
 # Standard targets for development and CI
 
-.PHONY: all check lint test build-tools clean help validate-json validate-policies verify-security validate-terraform check-drift
+.PHONY: all check lint test build-tools clean help validate-json validate-policies verify-security validate-terraform check-drift smoke
 
 # Default target
 all: check test
@@ -13,6 +13,7 @@ help:
 	@echo "  make check            - Run all validation checks (JSON + Markdown)"
 	@echo "  make lint             - Run Markdown linting only"
 	@echo "  make test             - Run Python unit tests"
+	@echo "  make smoke            - Run CLI smoke tests"
 	@echo "  make build-tools      - Install Python development dependencies"
 	@echo "  make validate-json    - Validate JSON file syntax"
 	@echo "  make validate-policies - Run ASVS compliance gate validation"
@@ -155,3 +156,27 @@ check-drift:
 			python3 -m tools.drift_detector --offline; \
 		fi; \
 	fi
+
+# Smoke test CLI entry points
+smoke:
+	@echo "Running CLI smoke tests..."
+	@if [ -d ".venv" ]; then \
+		.venv/bin/asvs --help > /dev/null && echo "  ✓ asvs --help"; \
+		.venv/bin/asvs verify --help > /dev/null && echo "  ✓ asvs verify --help"; \
+		.venv/bin/asvs export --help > /dev/null && echo "  ✓ asvs export --help"; \
+		.venv/bin/asvs drift --help > /dev/null && echo "  ✓ asvs drift --help"; \
+		.venv/bin/asvs scan --help > /dev/null && echo "  ✓ asvs scan --help"; \
+		.venv/bin/asvs test --help > /dev/null && echo "  ✓ asvs test --help"; \
+		.venv/bin/asvs init --help > /dev/null && echo "  ✓ asvs init --help"; \
+		.venv/bin/python -m tools.compliance_gate --help > /dev/null && echo "  ✓ python -m tools.compliance_gate --help (legacy)"; \
+	else \
+		asvs --help > /dev/null && echo "  ✓ asvs --help"; \
+		asvs verify --help > /dev/null && echo "  ✓ asvs verify --help"; \
+		asvs export --help > /dev/null && echo "  ✓ asvs export --help"; \
+		asvs drift --help > /dev/null && echo "  ✓ asvs drift --help"; \
+		asvs scan --help > /dev/null && echo "  ✓ asvs scan --help"; \
+		asvs test --help > /dev/null && echo "  ✓ asvs test --help"; \
+		asvs init --help > /dev/null && echo "  ✓ asvs init --help"; \
+		python3 -m tools.compliance_gate --help > /dev/null && echo "  ✓ python -m tools.compliance_gate --help (legacy)"; \
+	fi
+	@echo "All CLI smoke tests passed."

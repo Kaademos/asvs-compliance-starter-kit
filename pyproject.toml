@@ -23,6 +23,7 @@ classifiers = [
 ]
 
 [project.scripts]
+asvs = "tools.cli:main"
 export-requirements = "tools.export_requirements:main"
 compliance-gate = "tools.compliance_gate:main"
 verification-suite = "tools.verification_suite:main"
