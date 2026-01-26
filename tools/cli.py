@@ -6,18 +6,28 @@ Usage:
     asvs <command> [options]
 
 Commands:
-    init     - Initialize a new ASVS project
-    verify   - Run compliance gate validation
-    scan     - Scan infrastructure (Terraform)
-    test     - Run DAST verification suite
-    export   - Export ASVS requirements
-    drift    - Check for ASVS standard drift
+    init      - Initialize a new ASVS project
+    verify    - Run compliance gate validation
+    scan      - Scan infrastructure (Terraform)
+    test      - Run DAST verification suite
+    export    - Export ASVS requirements
+    drift     - Check for ASVS standard drift
+    resources - Manage CLI resources (download, cache)
 """
 
 import argparse
 import sys
 from pathlib import Path
 from typing import List, Optional
+
+
+def get_version() -> str:
+    """Get version from package metadata or fallback."""
+    try:
+        from importlib.metadata import version
+        return version("asvs-compliance-tools")
+    except Exception:
+        return "2.2.0"
 
 
 def cmd_init(args: argparse.Namespace) -> int:
@@ -121,6 +131,40 @@ def cmd_drift(args: argparse.Namespace) -> int:
     return drift_detector.main(cli_args)
 
 
+def cmd_resources(args: argparse.Namespace) -> int:
+    """Handle 'asvs resources' command."""
+    from tools import resource_manager
+
+    if args.download:
+        success, _ = resource_manager.ensure_resources(
+            interactive=not args.yes,
+            quiet=args.quiet
+        )
+        return 0 if success else 1
+
+    if args.clear:
+        manager = resource_manager.ResourceManager()
+        if manager.clear_cache():
+            print("Cache cleared successfully.")
+            return 0
+        else:
+            print("Failed to clear cache.")
+            return 1
+
+    if args.status:
+        manager = resource_manager.ResourceManager()
+        print(f"Cache directory: {manager.cache_dir}")
+        print()
+        for rt, manifest in resource_manager.RESOURCE_MANIFEST.items():
+            available = manager.are_resources_available(rt)
+            status = "Available" if available else "Missing"
+            print(f"  {manifest['description']}: {status}")
+        return 0
+
+    print("Use --download, --status, or --clear. See 'asvs resources --help'.")
+    return 0
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create the main argument parser with subcommands."""
     parser = argparse.ArgumentParser(
@@ -132,7 +176,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version",
         action="version",
-        version="%(prog)s 2.1.0",
+        version=f"%(prog)s {get_version()}",
     )
 
     subparsers = parser.add_subparsers(
@@ -293,6 +337,39 @@ def create_parser() -> argparse.ArgumentParser:
         help="Output in JSON format",
     )
     drift_parser.set_defaults(func=cmd_drift)
+
+    # --- asvs resources ---
+    resources_parser = subparsers.add_parser(
+        "resources",
+        help="Manage CLI resources (download, cache)",
+        description="Download and manage ASVS templates and reference files.",
+    )
+    resources_parser.add_argument(
+        "--download",
+        action="store_true",
+        help="Download all required resources from GitHub",
+    )
+    resources_parser.add_argument(
+        "--status",
+        action="store_true",
+        help="Show resource cache status",
+    )
+    resources_parser.add_argument(
+        "--clear",
+        action="store_true",
+        help="Clear cached resources",
+    )
+    resources_parser.add_argument(
+        "--yes", "-y",
+        action="store_true",
+        help="Skip confirmation prompt",
+    )
+    resources_parser.add_argument(
+        "--quiet", "-q",
+        action="store_true",
+        help="Suppress progress output",
+    )
+    resources_parser.set_defaults(func=cmd_resources)
 
     return parser
 

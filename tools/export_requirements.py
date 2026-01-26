@@ -281,22 +281,36 @@ def get_exporter(format_type: str) -> Exporter:
 
 def find_source_file(level: str, base_path: Path) -> Path:
     """Find the appropriate source file for the given level."""
-    core_ref = base_path / "01-ASVS-Core-Reference"
-    
-    level_files = {
-        "1": core_ref / "ASVS-L1-Baseline.json",
-        "2": core_ref / "ASVS-L2-Standard.json",
-        "3": core_ref / "ASVS-5.0-en.json",
+    level_file_names = {
+        "1": "ASVS-L1-Baseline.json",
+        "2": "ASVS-L2-Standard.json",
+        "3": "ASVS-5.0-en.json",
     }
-    
-    if level not in level_files:
+
+    if level not in level_file_names:
         raise ValueError(f"Invalid level: {level}")
-    
-    path = level_files[level]
-    if not path.exists():
-        raise FileNotFoundError(f"Source file not found: {path}")
-    
-    return path
+
+    filename = level_file_names[level]
+
+    local_core_ref = base_path / "01-ASVS-Core-Reference"
+    local_path = local_core_ref / filename
+    if local_path.exists():
+        return local_path
+
+    try:
+        from tools.resource_manager import get_resource_path
+        cached_path = get_resource_path("core_reference")
+        if cached_path:
+            path = cached_path / filename
+            if path.exists():
+                return path
+    except ImportError:
+        pass
+
+    raise FileNotFoundError(
+        f"Source file not found: {filename}. "
+        "Run 'asvs resources --download' to fetch required files."
+    )
 
 
 def create_parser() -> argparse.ArgumentParser:

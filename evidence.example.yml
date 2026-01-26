@@ -1,29 +1,224 @@
 # evidence.example.yml
 # ASVS Compliance Evidence Manifest
-# Map ASVS Requirements to automated checks in your codebase.
+#
+# This file maps ASVS requirements to automated checks in your codebase.
+# The compliance gate verifies these checks during CI/CD to ensure
+# your security controls are actually implemented.
+#
+# Usage:
+#   asvs verify --level 2 --evidence evidence.yml
+#
+# Check Types:
+#   - file_exists: Verify a file exists at the specified path
+#   - content_match: Search a file for a regex pattern
 
 requirements:
-  # V14.4.1: HTTP Security Headers
-  V14.4.1:
+
+  # ============================================================================
+  # V1: Architecture, Design, and Threat Modeling
+  # ============================================================================
+  
+  V1.1.1:  # Security Documentation
     checks:
       - type: file_exists
-        path: "package.json"
-      - type: content_match
-        path: "package.json"
-        pattern: "\"helmet\""
-        description: "Ensure Helmet.js is installed for security headers"
+        path: "SECURITY.md"
+      - type: file_exists
+        path: "docs/architecture.md"
 
-  # V5.3.3: Output Encoding (React does this by default, verify usage)
-  V5.3.3:
+  # ============================================================================
+  # V2: Authentication
+  # ============================================================================
+  
+  V2.1.1:  # Credential Storage
+    checks:
+      # For Python projects
+      - type: content_match
+        path: "requirements.txt"
+        pattern: "passlib|bcrypt|argon2"
+      # For Node.js projects
+      # - type: content_match
+      #   path: "package.json"
+      #   pattern: '"bcrypt"|"argon2"'
+
+  # ============================================================================
+  # V3: Session Management
+  # ============================================================================
+  
+  V3.2.1:  # Session Token Generation
+    checks:
+      # Django
+      - type: content_match
+        path: "settings.py"
+        pattern: "SESSION_COOKIE_SECURE\\s*=\\s*True"
+      # Express
+      # - type: content_match
+      #   path: "package.json"
+      #   pattern: '"express-session"'
+
+  V3.4.1:  # Cookie Security Attributes
     checks:
       - type: content_match
-        path: "frontend/package.json"
-        pattern: "\"react\""
+        path: "settings.py"
+        pattern: "SESSION_COOKIE_HTTPONLY\\s*=\\s*True"
 
-  # V6.2.1: Password Hashing
-  V6.2.1:
+  # ============================================================================
+  # V4: Access Control
+  # ============================================================================
+  
+  V4.1.1:  # Access Control Implementation
+    checks:
+      - type: file_exists
+        path: "src/middleware/auth.py"
+      # For Node.js
+      # - type: content_match
+      #   path: "package.json"
+      #   pattern: '"passport"|"express-jwt"'
+
+  # ============================================================================
+  # V5: Validation, Sanitization, and Encoding
+  # ============================================================================
+  
+  V5.1.1:  # Input Validation
+    checks:
+      # Python/Pydantic
+      - type: content_match
+        path: "requirements.txt"
+        pattern: "pydantic|marshmallow"
+      # Node.js
+      # - type: content_match
+      #   path: "package.json"
+      #   pattern: '"express-validator"|"joi"|"yup"'
+
+  V5.3.3:  # Output Encoding
+    checks:
+      # React handles this by default
+      - type: content_match
+        path: "package.json"
+        pattern: '"react"'
+      # Or manual encoding
+      # - type: content_match
+      #   path: "src/utils/encode.py"
+      #   pattern: "html\\.escape|markupsafe"
+
+  # ============================================================================
+  # V6: Stored Cryptography
+  # ============================================================================
+  
+  V6.2.1:  # Password Storage - Memory Hard Algorithm
     checks:
       - type: content_match
-        path: "backend/requirements.txt"
-        pattern: "bcrypt|argon2"
-        description: "Verify strong password hashing library is present"
+        path: "requirements.txt"
+        pattern: "argon2-cffi|argon2"
+      # Fallback to bcrypt
+      # - type: content_match
+      #   path: "requirements.txt"
+      #   pattern: "bcrypt"
+
+  V6.2.2:  # Password Hashing Configuration
+    checks:
+      - type: file_exists
+        path: "src/auth/password_hasher.py"
+      - type: content_match
+        path: "src/auth/password_hasher.py"
+        pattern: "argon2|bcrypt"
+
+  # ============================================================================
+  # V7: Error Handling and Logging
+  # ============================================================================
+  
+  V7.1.1:  # Generic Error Messages
+    checks:
+      - type: file_exists
+        path: "src/middleware/error_handler.py"
+
+  V7.2.1:  # Security Logging
+    checks:
+      - type: content_match
+        path: "requirements.txt"
+        pattern: "structlog|python-json-logger"
+      # - type: content_match
+      #   path: "package.json"
+      #   pattern: '"winston"|"pino"'
+
+  # ============================================================================
+  # V8: Data Protection
+  # ============================================================================
+  
+  V8.1.1:  # Sensitive Data Identification
+    checks:
+      - type: file_exists
+        path: "docs/data-classification.md"
+
+  # ============================================================================
+  # V13: API and Web Service
+  # ============================================================================
+  
+  V13.1.1:  # Rate Limiting
+    checks:
+      # Python
+      - type: content_match
+        path: "requirements.txt"
+        pattern: "slowapi|flask-limiter|django-ratelimit"
+      # Node.js
+      # - type: content_match
+      #   path: "package.json"
+      #   pattern: '"express-rate-limit"|"rate-limiter-flexible"'
+
+  V13.2.1:  # API Authentication
+    checks:
+      - type: file_exists
+        path: "src/api/authentication.py"
+      - type: content_match
+        path: "requirements.txt"
+        pattern: "python-jose|pyjwt|authlib"
+
+  # ============================================================================
+  # V14: Configuration
+  # ============================================================================
+  
+  V14.4.1:  # HTTP Security Headers
+    checks:
+      # Node.js/Express
+      - type: content_match
+        path: "package.json"
+        pattern: '"helmet"'
+      - type: content_match
+        path: "src/app.js"
+        pattern: "helmet\\(\\)"
+      # Python/Django
+      # - type: content_match
+      #   path: "settings.py"
+      #   pattern: "SECURE_HSTS_SECONDS"
+      # Python/FastAPI
+      # - type: file_exists
+      #   path: "src/middleware/security_headers.py"
+
+  V14.5.1:  # CORS Configuration
+    checks:
+      - type: content_match
+        path: "package.json"
+        pattern: '"cors"'
+      # Django
+      # - type: content_match
+      #   path: "requirements.txt"
+      #   pattern: "django-cors-headers"
+
+# ============================================================================
+# Notes:
+# ============================================================================
+#
+# 1. Uncomment the checks relevant to your tech stack
+# 2. Adjust paths to match your project structure
+# 3. Use regex patterns for flexible matching:
+#    - "bcrypt|argon2" matches either library
+#    - "version.*[4-9]" matches version 4+
+#    - "helmet\\(\\)" matches function call
+#
+# 4. Layer checks for stronger verification:
+#    - file_exists ensures the file is there
+#    - content_match verifies actual implementation
+#
+# 5. Run verification:
+#    asvs verify --level 2 --evidence evidence.yml
+#
+# See docs/configuration.md for complete reference.
