@@ -64,7 +64,7 @@ requirements:
 
     print("\n✅ Initialization complete!")
     print(f"Next step: Review documents in {output_dir}")
-    print(f"Then run: python -m tools.compliance_gate --docs-path {output_dir} --level {level_choice}")
+    print(f"Then run: asvs verify --docs-path {output_dir} --level {level_choice}")
 
 def main(args=None):
     parser = argparse.ArgumentParser(description="Initialize a new ASVS project")

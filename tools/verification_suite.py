@@ -11,8 +11,8 @@ the presence of essential security controls including:
 - Cookie security attributes
 
 Usage:
-    python -m tools.verification_suite --target-url https://example.com
-    python -m tools.verification_suite --target-url https://example.com --format json
+    asvs test https://example.com
+    asvs test https://example.com --json
 """
 
 import argparse
@@ -598,9 +598,9 @@ def main(args=None):
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python -m tools.verification_suite --target-url https://example.com
-  python -m tools.verification_suite --target-url https://example.com --format json
-  python -m tools.verification_suite --help
+  asvs test https://example.com
+  asvs test https://example.com --json
+  asvs test --help
 
 Supported checks:
   - Security headers (HSTS, CSP, X-Frame-Options, etc.)
