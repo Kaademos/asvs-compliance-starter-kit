@@ -591,7 +591,7 @@ def format_text_report(report: VerificationReport) -> str:
     return "\n".join(lines)
 
 
-def main():
+def main(args=None):
     """Main entry point for the verification suite CLI."""
     parser = argparse.ArgumentParser(
         description="ASVS Verification Suite - Light DAST for Security Controls",
@@ -650,37 +650,32 @@ Supported checks:
         help="Allow scanning of local/private network addresses (SSRF protection disabled)",
     )
 
-    args = parser.parse_args()
+    parsed = parser.parse_args(args)
 
     # Validate URL
-    parsed = urlparse(args.target_url)
-    if not parsed.scheme or not parsed.netloc:
-        print(f"Error: Invalid URL: {args.target_url}")
-        sys.exit(1)
+    parsed_url = urlparse(parsed.target_url)
+    if not parsed_url.scheme or not parsed_url.netloc:
+        print(f"Error: Invalid URL: {parsed.target_url}")
+        return 1
+
     try:
-        # Pass the allow_local flag
-        suite = VerificationSuite(args.target_url, timeout=args.timeout, allow_local=args.allow_local)
+        suite = VerificationSuite(parsed.target_url, timeout=parsed.timeout, allow_local=parsed.allow_local)
         report = suite.run_verification()
-        # ... output handling ...
     except ValueError as e:
         print(f"Error: {e}")
-        sys.exit(1)
-
-    # Run verification
-    suite = VerificationSuite(args.target_url, timeout=args.timeout)
-    report = suite.run_verification()
+        return 1
 
     # Output report
-    if args.format == "json":
+    if parsed.format == "json":
         print(json.dumps(report.to_dict(), indent=2))
     else:
         print(format_text_report(report))
 
     # Exit code based on results
-    if args.fail_on_issues and report.has_failures():
-        sys.exit(1)
-    sys.exit(0)
+    if parsed.fail_on_issues and report.has_failures():
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

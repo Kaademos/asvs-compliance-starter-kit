@@ -71,26 +71,26 @@ class TerraformScanner:
                 resources.append(rc)
         return resources
 
-def main():
+def main(args=None):
     parser = argparse.ArgumentParser(description="ASVS Infrastructure Scanner")
     parser.add_argument("--plan-file", required=True, type=Path, help="Path to terraform show -json output")
     parser.add_argument("--format", choices=["text", "json"], default="text")
-    args = parser.parse_args()
+    parsed = parser.parse_args(args)
 
-    if not args.plan_file.exists():
-        print(f"Error: Plan file {args.plan_file} not found.")
-        sys.exit(1)
+    if not parsed.plan_file.exists():
+        print(f"Error: Plan file {parsed.plan_file} not found.")
+        return 1
 
     try:
-        data = json.loads(args.plan_file.read_text())
+        data = json.loads(parsed.plan_file.read_text())
     except json.JSONDecodeError:
         print("Error: Invalid JSON file.")
-        sys.exit(1)
+        return 1
 
     scanner = TerraformScanner(data)
     issues = scanner.scan()
 
-    if args.format == "json":
+    if parsed.format == "json":
         print(json.dumps([asdict(i) for i in issues], indent=2))
     else:
         print("ASVS Infrastructure Scan Report")
@@ -100,7 +100,7 @@ def main():
         for i in issues:
             print(f"[{i.severity}] {i.rule_id}: {i.message} ({i.resource})")
 
-    sys.exit(1 if issues else 0)
+    return 1 if issues else 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

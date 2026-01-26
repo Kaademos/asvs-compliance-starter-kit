@@ -28,7 +28,7 @@ def cmd_init(args: argparse.Namespace) -> int:
     if args.interactive:
         cli_args.append("--interactive")
 
-    return init_project.main() or 0
+    return init_project.main(cli_args) or 0
 
 
 def cmd_verify(args: argparse.Namespace) -> int:
@@ -64,8 +64,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
     if args.json:
         cli_args.extend(["--format", "json"])
 
-    sys.argv = ["asvs scan"] + cli_args
-    return iac_scanner.main() or 0
+    return iac_scanner.main(cli_args)
 
 
 def cmd_test(args: argparse.Namespace) -> int:
@@ -83,8 +82,7 @@ def cmd_test(args: argparse.Namespace) -> int:
     if args.timeout:
         cli_args.extend(["--timeout", str(args.timeout)])
 
-    sys.argv = ["asvs test"] + cli_args
-    return verification_suite.main() or 0
+    return verification_suite.main(cli_args)
 
 
 def cmd_export(args: argparse.Namespace) -> int:

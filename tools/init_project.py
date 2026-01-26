@@ -66,16 +66,18 @@ requirements:
     print(f"Next step: Review documents in {output_dir}")
     print(f"Then run: python -m tools.compliance_gate --docs-path {output_dir} --level {level_choice}")
 
-def main():
+def main(args=None):
     parser = argparse.ArgumentParser(description="Initialize a new ASVS project")
     parser.add_argument("--interactive", action="store_true", help="Run in interactive mode")
-    args = parser.parse_args()
+    parsed = parser.parse_args(args)
     
-    if args.interactive:
+    if parsed.interactive:
         interactive_init()
     else:
         # Default behavior if run without args, or provide CLI flags in future
         print("Run with --interactive to start the wizard.")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
